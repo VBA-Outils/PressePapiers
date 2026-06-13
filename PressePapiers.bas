@@ -7,7 +7,7 @@ Attribute VB_Name = "PressePapiers"
 ' @license MIT (http://www.opensource.org/licenses/mit-license.php)
 '' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 '
-' Copyright (c) 2024, Vincent ROSSET
+' Copyright (c) 2026, Vincent ROSSET
 ' All rights reserved.
 '
 ' Redistribution and use in source and binary forms, with or without
@@ -33,10 +33,16 @@ Attribute VB_Name = "PressePapiers"
 ' SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ' ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ '
 
-' *----------------------------------------------------------------------------------------------------------*
-' * Copier/coller une chaîne de caractères depuis/dans le presse-papiers de Windows                          *
-' *----------------------------------------------------------------------------------------------------------*
+'-------------------------------------------------------------------------------------------------------------------------
+' PressePapiers : Fonctions pour copier / coller du texte dans le presse-papiers de windows
+'-------------------------------------------------------------------------------------------------------------------------
+
 Option Explicit
+Option Compare Text
+
+'-------------------------------------------------------------------------------------------------------------------------
+' Copier/coller une chaîne de caractères depuis/dans le presse-papiers de Windows
+'-------------------------------------------------------------------------------------------------------------------------
 
 Private Const CF_TEXT = 1               'Text format. Each line ends with a carriage return/linefeed (CR-LF) combination. A null character signals the end of the data. Use this format for ANSI text.
 Private Const CF_BITMAP = 2             'A handle to a bitmap (HBITMAP).
@@ -76,11 +82,16 @@ Private Declare PtrSafe Function SetClipboardData Lib "user32" (ByVal wFormat As
 Private Declare PtrSafe Function GetClipboardData Lib "user32" (ByVal wFormat As Long) As LongPtr
 Private Declare PtrSafe Function lstrcpy Lib "kernel32" (ByVal lpString1 As Any, ByVal lpString2 As Any) As LongPtr
 
-' *---------------------------------------------------------------------------------------------------*
-' * Copier une chaîne de caractères dans le presse-papiers de Windows                                 *
-' *---------------------------------------------------------------------------------------------------*
+'-------------------------------------------------------------------------------------------------------------------------
+' Copier une chaîne de caractères dans le presse-papiers de Windows
+'-------------------------------------------------------------------------------------------------------------------------
+' sChaine : texte à copier dans le presse-papiers
+'-------------------------------------------------------------------------------------------------------------------------
+' Exemple d'appel :
+' Call EcrirePressePapiers("XXXX") : le texte "XXXX" sera copié dans le presse-papiers
+'-------------------------------------------------------------------------------------------------------------------------
 Public Sub EcrirePressePapiers(sChaine As String)
-    
+
     Const GMEM_MOVEABLE = &H2
     Const GMEM_ZEROINIT = &H40
     Const GHND = (GMEM_MOVEABLE Or GMEM_ZEROINIT)
@@ -95,11 +106,11 @@ Public Sub EcrirePressePapiers(sChaine As String)
     lpGlobalMemory = lstrcpy(lpGlobalMemory, sChaine)
     ' Déverrouille la méoire
     If GlobalUnlock(hGlobalMemory) <> 0 Then
-        Err.Raise vbObjectError + 1, "Presse-papiers", "Erreur technique : impossible de déverrouiller l'emplacement mémoire."
+        Err.Raise -50, "Presse-papiers", "Erreur technique : impossible de déverrouiller l'emplacement mémoire."
     Else
         ' Ouvrir le presse-papiers afin de pouvoir copier
         If OpenClipboard(0&) = 0 Then
-            Err.Raise vbObjectError + 2, "Presse-papiers", "Le presse-papiers ne peut pas être ouvert."
+            Err.Raise -51, "Presse-papiers", "Le presse-papiers ne peut pas être ouvert."
         Else
             ' Vider le presse-papiers
             Call EmptyClipboard
@@ -107,15 +118,18 @@ Public Sub EcrirePressePapiers(sChaine As String)
             Call SetClipboardData(CF_TEXT, hGlobalMemory)
             ' Fermer le presse-papiers (afin de valider la copie)
             If CloseClipboard() = 0 Then
-                Err.Raise vbObjectError + 3, "Presse-papiers", "Le presse-papiers ne peut pas être fermé."
+                Err.Raise -52, "Presse-papiers", "Le presse-papiers ne peut pas être fermé."
             End If
         End If
     End If
 End Sub
 
-' *---------------------------------------------------------------------------------------------------*
-' * Lire le contenu du Presse-Papiers                                                                 *
-' *---------------------------------------------------------------------------------------------------*
+'-------------------------------------------------------------------------------------------------------------------------
+' Lire le contenu du Presse-Papiers de Windows (uniquement le texte)
+'-------------------------------------------------------------------------------------------------------------------------
+' Exemple d'appel :
+' sPP = LirePressePapiers
+'-------------------------------------------------------------------------------------------------------------------------
 Public Function LirePressePapiers() As String
 
     ' Taille maximale des données texte pouvant être récupérées
@@ -126,12 +140,12 @@ Public Function LirePressePapiers() As String
  
     LirePressePapiers = ""
     If OpenClipboard(0&) = 0 Then
-        Err.Raise vbObjectError + 4, "Presse-papiers", "Le presse-papiers ne peut pas être ouvert."
+        Err.Raise -60, "Presse-papiers", "Le presse-papiers ne peut pas être ouvert."
     Else
         ' Obtenir le handle du bloc mémoire utilisé par le presse-papiers
         hGlobalMemory = GetClipboardData(CF_TEXT)
         If IsNull(hGlobalMemory) Then
-            Err.Raise vbObjectError + 5, "Presse-papiers", "Erreur technique : impossible de récupérer l'emplacement mémoire."
+            Err.Raise -61, "Presse-papiers", "Erreur technique : impossible de récupérer l'emplacement mémoire."
         Else
             ' Verrouiller la mémoire du presse-papiers afin de pouvoir l'adresser
             lpGlobalMemory = GlobalLock(hGlobalMemory)
@@ -147,13 +161,12 @@ Public Function LirePressePapiers() As String
                     LirePressePapiers = sPressePapiers
                 End If
             Else
-                Err.Raise vbObjectError + 6, "Presse-papiers", "Erreur technique : impossible de verrouiller l'emplacement mémoire."
+                Err.Raise -62, "Presse-papiers", "Erreur technique : impossible de verrouiller l'emplacement mémoire."
             End If
         End If
         If CloseClipboard() = 0 Then
-            Err.Raise vbObjectError + 3, "Presse-papiers", "Le presse-papiers ne peut pas être fermé."
+            Err.Raise -63, "Presse-papiers", "Le presse-papiers ne peut pas être fermé."
         End If
     End If
 
 End Function
-
