@@ -1,47 +1,33 @@
-# Module VBA – Gestion du presse-papiers Windows
+# 📚 Bibliothèque VBA
 
-Ce dépôt fournit un module VBA permettant de **lire** et **écrire** du texte dans le presse-papiers Windows, fonctionnalité non disponible nativement en VBA.
+![Langage](https://img.shields.io/badge/langage-VBA-blue)
+![Licence](https://img.shields.io/badge/Licence-MIT-green)
+
+Module VBA regroupant des fonctions pour lire et écrire dans le presse-papiers de Windows via les API système.
 
 ---
 
-## Objectif
+## 📄 Licence
+
+Ce projet est distribué sous licence **MIT**.  
+Consultez le fichier [`LICENSE`](LICENSE) pour plus de détails.
+
+---
+
+## 🧰 Prérequis
+
+- Environnement : **Microsoft Visual Basic for Applications (VBA)**
+- Compatible Excel (Windows)
+
+---
+
+# 🧩 Fonctions et procédures disponibles
 
 Le module expose deux fonctions simples :
 
-- `LirePressePapiers() As String`  
-  Retourne le texte actuellement présent dans le presse-papiers.
-
-- `EcrirePressePapiers(texte As String)`  
-  Remplace le contenu du presse-papiers par la chaîne fournie.
+|Module|Descriptif|
+|------|----------|
+|LirePressePapiers|Retourne le texte actuellement présent dans le presse-papiers.|
+|EcrirePressePapiers|Remplace le contenu du presse-papiers par la chaîne fournie.|
 
 Ces fonctions encapsulent les API Windows nécessaires (Win32) pour une utilisation directe en VBA.
-
----
-
-## Contenu du dépôt
-
-- `PressePapiers.bas` : module VBA contenant les déclarations API et les fonctions publiques.
-- `README.md` : ce fichier de documentation.
-- `LICENSE` : licence MIT.
-
-Aucune dépendance externe n’est requise.
-
----
-
-## Installation
-
-1. Ouvrir l’éditeur VBA (`Alt` + `F11`).
-2. Menu **Fichier** → **Importer un fichier…**.
-3. Sélectionner le fichier `PressePapiers.bas`.
-4. Le module est alors disponible dans tout le projet VBA.
-
----
-
-## Utilisation
-
-### Lire le presse-papiers
-
-```vba
-Dim txt As String
-txt = LirePressePapiers()
-MsgBox txt
